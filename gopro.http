@@ -1,0 +1,100 @@
+@host = http://localhost:8080
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI0OTM0NzgsInVzZXJfaWQiOjN9.wc32ELYBBy2lPOmEJuFDNGhfUMyJJ0OKWnExBMir7VE
+
+
+###
+<!--
+
+{
+    "to_user_id": 2,
+    "content": "Hello, User 2!"
+}
+
+-->
+###
+
+###
+POST {{host}}/login 
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "kim@gopro.com",
+    "password": "password1!"
+}
+
+###
+POST {{host}}/login 
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "aditya@gopro.com",
+    "password": "password1!"
+}
+
+###
+POST {{host}}/login 
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "jo@gopro.com",
+    "password": "password1!"
+}
+
+###
+POST {{host}}/register
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "kim",
+    "email": "kim@gopro.com",
+    "password": "password1!"
+}
+
+###
+GET {{host}}/message/2
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/stories
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/stories/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/stories
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "status": "hello world 29 juli!"
+}
+
+
+###
+PUT {{host}}/stories/2
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "status": "hello world 29 juli 2024!"
+}
+
+###
+DELETE {{host}}/stories/4
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
