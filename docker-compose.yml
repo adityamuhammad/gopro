@@ -13,10 +13,16 @@ services:
     volumes:
       - ./docker/mysql:/var/lib/mysql
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
   gopro-backend:
     build: ./
     ports:
       - 8080:8080
+    command: ["/app/gopro/web"] 
     environment:
       - DB_USER=gopro
       - DB_PASSWORD=root
@@ -26,4 +32,21 @@ services:
       - JWT_SECRET=Wfu3FD9X5NcbST8e5S3hsgTpVAEGpJrFvnLrmDtsi6
     depends_on:
       - gopro-mysqldb
+      - redis
     restart: always
+
+  gopro-worker:
+    build: ./
+    command: ["/app/gopro/worker"] 
+    environment:
+      - DB_USER=gopro
+      - DB_PASSWORD=root
+      - DB_HOST=gopro-mysqldb
+      - DB_PORT=3306
+      - DB_NAME=gopro
+      - JWT_SECRET=Wfu3FD9X5NcbST8e5S3hsgTpVAEGpJrFvnLrmDtsi6
+    depends_on:
+      - gopro-mysqldb
+      - redis
+    restart: always
+

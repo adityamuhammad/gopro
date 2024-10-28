@@ -18,7 +18,7 @@ import (
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
-const redisAddr = "127.0.0.1:6379"
+const redisAddr = "redis:6379"
 
 func Register(c *gin.Context) {
 	var user models.User
