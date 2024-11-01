@@ -37,7 +37,6 @@ Content-Type: application/json
 POST {{host}}/login 
 Accept: application/json
 Content-Type: application/json
-
 {
     "email": "jo@gopro.com",
     "password": "password1!"
@@ -49,8 +48,8 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "name": "cole aliston",
-    "email": "cole.aliston@gopro.com",
+    "name": "cole aliston2",
+    "email": "cole.aliston2@gopro.com",
     "password": "password1!"
 }
 

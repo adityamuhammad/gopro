@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'gopro_backend'
+    static_configs:
+      - targets: ['gopro-backend:8080']
+    basic_auth:
+      username: 'gopro'   # Replace with your actual username
+      password: 'g0pr0'
