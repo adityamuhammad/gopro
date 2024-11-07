@@ -96,6 +96,7 @@ func main() {
 		authorized.GET("/stories/:id", handlers.GetStory)
 		authorized.PUT("stories/:id", handlers.UpdateStory)
 		authorized.DELETE("stories/:id", handlers.DeleteStory)
+		authorized.POST("/user/profile-image", handlers.UpdateProfileImage)
 	}
 
 	r.Run(":8080")
