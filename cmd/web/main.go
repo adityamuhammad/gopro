@@ -7,27 +7,40 @@ import (
 	"gopro/models"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
-	requestCount = prometheus.NewCounterVec(
+	totalRequests = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
-			Help: "Total number of HTTP requests",
+			Help: "Number of GET requests.",
 		},
-		[]string{"method", "path"},
+		[]string{"path"},
 	)
-	requestDuration = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name: "http_request_duration_seconds",
-			Help: "Histogram of HTTP request durations",
+
+	responseStatus = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "response_status",
+			Help: "Status of HTTP response",
 		},
-		[]string{"method", "path"},
+		[]string{"status"},
+	)
+
+	httpDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_response_time_seconds",
+			Help:    "Duration of HTTP requests.",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"path"},
 	)
 )
 
@@ -36,12 +49,30 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("No .env file found")
 	}
-	prometheus.MustRegister(requestCount)
-	prometheus.MustRegister(requestDuration)
+}
+
+func prometheusMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		startTime := time.Now()
+
+		// Process request
+		c.Next()
+
+		// Calculate duration
+		duration := time.Since(startTime).Seconds()
+		statusCode := strconv.Itoa(c.Writer.Status())
+		path := c.FullPath()
+
+		// Record metrics
+		httpDuration.WithLabelValues(path).Observe(duration)
+		totalRequests.WithLabelValues(path).Inc()
+		responseStatus.WithLabelValues(statusCode).Inc()
+	}
 }
 
 func main() {
 	r := gin.Default()
+	r.Use(prometheusMiddleware())
 
 	config.ConnectDatabase()
 
