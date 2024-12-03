@@ -1,5 +1,5 @@
 @host = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI0OTM0NzgsInVzZXJfaWQiOjN9.wc32ELYBBy2lPOmEJuFDNGhfUMyJJ0OKWnExBMir7VE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM0Njk2NTYsInVzZXJfaWQiOjJ9.1GVi10OQq0N77OTd4f8OgrQfsXTBcw-R1lwTX4S3Uoc
 
 
 ###
@@ -97,3 +97,18 @@ DELETE {{host}}/stories/4
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
+
+
+###
+POST {{host}}/user/profile-image
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="profile_image"; filename="profile-image.jpg"
+Content-Type: image/jpeg
+
+< ./storage/profile-image/ktp_visitor_2.jpg
+--boundary--
