@@ -71,5 +71,19 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  minio-gopro:
+    image: minio/minio
+    container_name: minio-gopro
+    ports:
+      - "9000:9000" # MinIO API port
+      - "9001:9001" # MinIO Console port
+    environment:
+      MINIO_ROOT_USER: minioadmin       # Root user (access key)
+      MINIO_ROOT_PASSWORD: minioadmin  # Root password (secret key)
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+
 volumes:
   grafana-data:
+  minio-data:

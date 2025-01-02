@@ -76,6 +76,12 @@ func main() {
 
 	config.ConnectDatabase()
 
+	err := config.InitMinIO()
+
+	if err != nil {
+		log.Fatalf("Failed to initialize MinIO client: %v", err)
+	}
+
 	config.DB.AutoMigrate(&models.User{}, &models.Story{}, &models.Message{})
 
 	authPrometheus := gin.BasicAuth(gin.Accounts{

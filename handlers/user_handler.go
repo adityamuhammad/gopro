@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"gopro/config"
 	"gopro/models"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
 )
 
 func UpdateProfileImage(c *gin.Context) {
@@ -35,13 +37,43 @@ func UpdateProfileImage(c *gin.Context) {
 		return
 	}
 
-	fileFolder := fmt.Sprintf("%s%d%s", "profile_image/", time.Now().UnixNano(), file.Filename)
-	filePath := "./storage/" + fileFolder
-	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.String(http.StatusInternalServerError, "Could not save the file: %v", err)
+	/*
+		THIS IS FOR METHOD STORE IN LOCAL STORAGE OF PROJECT
+		BEGIN
+	*/
+	// fileFolder := fmt.Sprintf("%s%d%s", "profile_image/", time.Now().UnixNano(), file.Filename)
+	// filePath := "./storage/" + fileFolder
+	// if err := c.SaveUploadedFile(file, filePath); err != nil {
+	// 	c.String(http.StatusInternalServerError, "Could not save the file: %v", err)
+	// 	return
+	// }
+	// user.ProfileImage = fileFolder
+	/*
+		END
+	*/
+
+	// Generate a unique file name
+	fileName := fmt.Sprintf("profile_image/%d_%s", time.Now().UnixNano(), file.Filename)
+
+	// Open the file for reading
+	srcFile, err := file.Open()
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Could not open the file: %v", err)
 		return
 	}
-	user.ProfileImage = fileFolder
+	defer srcFile.Close()
+
+	// Upload the file to MinIO
+	bucketName := "gopro"
+	contentType := file.Header.Get("Content-Type")
+	_, err = config.MinIOClient.PutObject(context.Background(), bucketName, fileName, srcFile, file.Size, minio.PutObjectOptions{
+		ContentType: contentType,
+	})
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Could not upload the file to MinIO: %v", err)
+		return
+	}
+	user.ProfileImage = fileName
 
 	config.DB.Save(&user)
 	c.JSON(http.StatusOK, gin.H{"message": "success"})

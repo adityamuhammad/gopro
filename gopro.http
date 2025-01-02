@@ -1,5 +1,5 @@
 @host = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM0Njk2NTYsInVzZXJfaWQiOjJ9.1GVi10OQq0N77OTd4f8OgrQfsXTBcw-R1lwTX4S3Uoc
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzYwNTEyMzYsInVzZXJfaWQiOjN9.wQg1SNg7t1YBFfkvC40J6To51ytfuhvRfezdUFLxDNM
 
 
 ###
@@ -103,12 +103,11 @@ Authorization: Bearer {{token}}
 ###
 POST {{host}}/user/profile-image
 Authorization: Bearer {{token}}
-Accept: application/json
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
-Content-Disposition: form-data; name="profile_image"; filename="profile-image.jpg"
-Content-Type: image/jpeg
+Content-Disposition: form-data; name="profile_image"; filename="ktpx.png"
+Content-Type: image/png
 
-< ./storage/profile-image/ktp_visitor_2.jpg
+< ./storage/profile-image/ktp.png
 --boundary--
