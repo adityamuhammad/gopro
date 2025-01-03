@@ -48,8 +48,8 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "name": "cole aliston2",
-    "email": "cole.aliston2@gopro.com",
+    "name": "cole aliston5",
+    "email": "cole.aliston5@gopro.com",
     "password": "password1!"
 }
 

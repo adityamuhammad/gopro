@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gopro/config"
 	"gopro/handlers"
 	middleware "gopro/middeware"
@@ -15,6 +16,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/ulule/limiter/v3"
+	ginLimiter "github.com/ulule/limiter/v3/drivers/middleware/gin"
+	storeRedis "github.com/ulule/limiter/v3/drivers/store/redis"
 )
 
 var (
@@ -76,10 +80,24 @@ func main() {
 
 	config.ConnectDatabase()
 
-	err := config.InitMinIO()
+	// Create a rate limiter
+	rate, errLimiter := limiter.NewRateFromFormatted("10-M") // 1000 requests/hour
+	if errLimiter != nil {
+		panic(errLimiter)
+	}
 
-	if err != nil {
-		log.Fatalf("Failed to initialize MinIO client: %v", err)
+	store, errStore := storeRedis.NewStoreWithOptions(config.RedisPool, limiter.StoreOptions{
+		Prefix: "gopro_ratelimit",
+	})
+
+	if errStore != nil {
+		panic(fmt.Sprintf("Failed to create Redis store: %v", errStore))
+	}
+	rateLimitMiddleware := ginLimiter.NewMiddleware(limiter.New(store, rate))
+
+	errMinio := config.InitMinIO()
+	if errMinio != nil {
+		log.Fatalf("Failed to initialize MinIO client: %v", errMinio)
 	}
 
 	config.DB.AutoMigrate(&models.User{}, &models.Story{}, &models.Message{})
@@ -90,7 +108,7 @@ func main() {
 
 	r.GET("/metrics", authPrometheus, gin.WrapH(promhttp.Handler()))
 	r.POST("/register", handlers.Register)
-	r.POST("/login", handlers.Login)
+	r.POST("/login", rateLimitMiddleware, handlers.Login)
 
 	authorized := r.Group("/")
 	authorized.Use(middleware.AuthMiddleware())
